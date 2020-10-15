@@ -20,10 +20,7 @@ class ViewController: UIViewController {
         super.viewDidLoad()
 
         // Oculte el contenedor del formulario de pago (View), hasta que se ejecute la acción de continuar al pago
-        self.synapForm.isHidden = true
-        
-        /*// Oculte el botón de pago (Button), hasta que se ejecute la acción de continuar al pago
-        self.synapButton.isHidden = true*/
+        self.synapForm.isHidden = true        
     }
     
     @IBAction func startPayment(_ sender: Any) {
