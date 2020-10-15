@@ -22,35 +22,35 @@ class ViewController: UIViewController {
         // Oculte el contenedor del formulario de pago (View), hasta que se ejecute la acción de continuar al pago
         self.synapForm.isHidden = true
         
-        // Oculte el botón de pago (Button), hasta que se ejecute la acción de continuar al pago
-        self.synapButton.isHidden = true
+        /*// Oculte el botón de pago (Button), hasta que se ejecute la acción de continuar al pago
+        self.synapButton.isHidden = true*/
     }
     
     @IBAction func startPayment(_ sender: Any) {
         // Muestre el contenedor del formulario de pago
         self.synapForm.isHidden = false
 
-        // Muestre el botón de pago
-        self.synapButton.isHidden = false
+        /*// Muestre el botón de pago
+        self.synapButton.isHidden = false*/
         
         // Crea el objeto del widget de pago
-        self.paymentWidget = SynapPayButton.create(view: self.synapForm)
+        self.paymentWidget = SynapPayButton.createPaymentBanks(view: self.synapForm)
         
-        // Tema de fondo en la tarjeta (Light o Dark)
+        /*// Tema de fondo en la tarjeta (Light o Dark)
         let theme = SynapLightTheme() // Fondo Light con controles dark
         //let theme = SynapDarkTheme() // Fondo Dark con controles light
-        SynapPayButton.setTheme(theme)
+        SynapPayButton.setTheme(theme)*/
         
         // Seteo del ambiente ".sandbox" o ".production"
         SynapPayButton.setEnvironment(.sandbox)
         
         // Seteo de los campos de transacción
-        let transaction=self.buildTransaction()
+        let transaction = self.buildTransaction()
         
         // Seteo de los campos de autenticación de seguridad
-        let authenticator=self.buildAuthenticator(transaction)
+        let authenticator = self.buildAuthenticator(transaction)
         
-        // Control de eventos en el formulario de pago
+        /*// Control de eventos en el formulario de pago
         SynapPayButton.setListener(
           listener:{
             (event) in
@@ -65,7 +65,7 @@ class ViewController: UIViewController {
                 break;
             }
           }
-        )
+        )*/
         
         self.paymentWidget.configure(
             // Seteo de autenticación de seguridad y transacción
@@ -75,7 +75,7 @@ class ViewController: UIViewController {
             // Manejo de la respuesta
             success: {
                 (response) in
-                let resultAccepted = response.result!.accepted
+                /*let resultAccepted = response.result!.accepted
                 let resultMessage = response.result!.message
                 if (resultAccepted!) {
                     // Agregue el código según la experiencia del cliente para la autorización
@@ -86,6 +86,16 @@ class ViewController: UIViewController {
                     // Agregue el código según la experiencia del cliente para la denegación
                     self.showMessage(message: resultMessage!)
                     self.synapButton.isEnabled=true
+                }*/
+                if (response.result != nil) {
+                    // Agregue el código según la experiencia del cliente para la autorización
+                    let messageText = response.result!.message!;
+                    let code = response.result!.processorResult!.paymentCode!.code!;
+                    self.showMessage(message: messageText + ": " + code)
+                }
+                else {
+                    // Agregue el código según la experiencia del cliente para la denegación
+                    self.showMessage(message: response.message!.text!)
                 }
             },
             failed: {
@@ -93,7 +103,7 @@ class ViewController: UIViewController {
                 let messageText = response.message!.text!
                 // Agregue el código de la experiencia que desee visualizar en un error
                 self.showMessage(message: messageText)
-                self.synapButton.isEnabled=true
+                /*self.synapButton.isEnabled=true*/
             }
         )
     }
@@ -182,14 +192,19 @@ class ViewController: UIViewController {
         settings.brands = ["VISA","MSCD","AMEX","DINC"];
         settings.language = "es_PE";
         settings.businessService = "MOB";
-        
+
+        // Expiration
+        var expiration = SynapExpiration();
+        expiration.date = "2020-08-15T23:59:59.000Z";
+        settings.expiration = expiration;
+
         // Referencie al objeto transacción
         var transaction = SynapTransaction();
         // Seteo de los datos de transacción
         transaction.order = order;
         transaction.settings = settings;
         
-        // Feature Card-Storage (Recordar Tarjeta)
+        /*// Feature Card-Storage (Recordar Tarjeta)
         var features = SynapFeatures()
         var cardStorage = SynapCardStorage()
         
@@ -197,7 +212,7 @@ class ViewController: UIViewController {
         cardStorage.userIdentifier = "javier.perez@synapsolutions.com"
         
         features.cardStorage = cardStorage
-        transaction.features = features
+        transaction.features = features*/
         
         return transaction;
     }
@@ -246,7 +261,9 @@ class ViewController: UIViewController {
         DispatchQueue.main.async {
             let alertMessage = UIAlertController(title: "", message: message, preferredStyle: .alert)
             // Finaliza el intento de pago y regresa al inicio, el comercio define la experiencia del cliente
-            let cancelAction = UIAlertAction(title: "Ok", style: .cancel, handler: { action in self.viewDidLoad()})
+            /*let cancelAction = UIAlertAction(title: "Ok", style: .cancel, handler: { action in self.viewDidLoad()})*/
+            let cancelAction = UIAlertAction(title: "Ok", style: .cancel)
+
             alertMessage.addAction(cancelAction)
             self.present(alertMessage, animated: true, completion: nil)
         }
