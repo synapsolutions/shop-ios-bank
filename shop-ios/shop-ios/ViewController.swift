@@ -20,24 +20,17 @@ class ViewController: UIViewController {
         super.viewDidLoad()
 
         // Oculte el contenedor del formulario de pago (View), hasta que se ejecute la acción de continuar al pago
-        self.synapForm.isHidden = true        
+        self.synapForm.isHidden = true
+        
     }
     
     @IBAction func startPayment(_ sender: Any) {
         // Muestre el contenedor del formulario de pago
         self.synapForm.isHidden = false
-
-        /*// Muestre el botón de pago
-        self.synapButton.isHidden = false*/
         
         // Crea el objeto del widget de pago
         self.paymentWidget = SynapPayButton.createPaymentBanks(view: self.synapForm)
-        
-        /*// Tema de fondo en la tarjeta (Light o Dark)
-        let theme = SynapLightTheme() // Fondo Light con controles dark
-        //let theme = SynapDarkTheme() // Fondo Dark con controles light
-        SynapPayButton.setTheme(theme)*/
-        
+                
         // Seteo del ambiente ".sandbox" o ".production"
         SynapPayButton.setEnvironment(.sandbox)
         
@@ -46,24 +39,7 @@ class ViewController: UIViewController {
         
         // Seteo de los campos de autenticación de seguridad
         let authenticator = self.buildAuthenticator(transaction)
-        
-        /*// Control de eventos en el formulario de pago
-        SynapPayButton.setListener(
-          listener:{
-            (event) in
-            switch(event){
-              case .startPay:
-                self.synapButton.isEnabled=false
-                break;
-              case .invalidCardForm:
-                self.synapButton.isEnabled=true
-                break;
-              case .validCardForm:
-                break;
-            }
-          }
-        )*/
-        
+                
         self.paymentWidget.configure(
             // Seteo de autenticación de seguridad y transacción
             authenticator: authenticator,
@@ -72,18 +48,6 @@ class ViewController: UIViewController {
             // Manejo de la respuesta
             success: {
                 (response) in
-                /*let resultAccepted = response.result!.accepted
-                let resultMessage = response.result!.message
-                if (resultAccepted!) {
-                    // Agregue el código según la experiencia del cliente para la autorización
-                    self.showMessage(message: resultMessage!)
-                    self.synapButton.isEnabled=true
-                }
-                else {
-                    // Agregue el código según la experiencia del cliente para la denegación
-                    self.showMessage(message: resultMessage!)
-                    self.synapButton.isEnabled=true
-                }*/
                 if (response.result != nil) {
                     // Agregue el código según la experiencia del cliente para la autorización
                     let messageText = response.result!.message!;
@@ -200,17 +164,7 @@ class ViewController: UIViewController {
         // Seteo de los datos de transacción
         transaction.order = order;
         transaction.settings = settings;
-        
-        /*// Feature Card-Storage (Recordar Tarjeta)
-        var features = SynapFeatures()
-        var cardStorage = SynapCardStorage()
-        
-        // Omitir userIdentifier, si se trata de usuario anónimo
-        cardStorage.userIdentifier = "javier.perez@synapsolutions.com"
-        
-        features.cardStorage = cardStorage
-        transaction.features = features*/
-        
+                
         return transaction;
     }
     
