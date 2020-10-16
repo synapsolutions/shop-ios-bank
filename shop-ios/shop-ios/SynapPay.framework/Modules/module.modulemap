@@ -1,0 +1,4 @@
+framework module SynapPay {
+  header "SynapPay-Swift.h"
+  requires objc
+}
