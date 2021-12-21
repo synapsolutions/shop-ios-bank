@@ -155,7 +155,7 @@ class ViewController: UIViewController {
 
         // Expiration
         var expiration = SynapExpiration();
-        expiration.date = "2020-08-15T23:59:59.000Z";
+        expiration.date = "2022-12-15T23:59:59.000Z";
         settings.expiration = expiration;
 
         // Referencie al objeto transacción
