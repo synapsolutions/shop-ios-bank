@@ -47,7 +47,10 @@ class ViewController: UIViewController {
             // Manejo de la respuesta
             success: {
                 (response) in
-                if (response.result != nil) {
+                let resultAccepted = response.result!.accepted
+                let resultMessage = response.result!.message
+                // if (response.result != nil) {
+                if (resultAccepted!) {
                     // Agregue el código según la experiencia del cliente para la autorización
                     let messageText = response.result!.message!;
                     let code = response.result!.processorResult!.paymentCode!.code!;
@@ -55,7 +58,8 @@ class ViewController: UIViewController {
                 }
                 else {
                     // Agregue el código según la experiencia del cliente para la denegación
-                    self.showMessage(message: response.message!.text!)
+                    // self.showMessage(message: response.message!.text!)
+                    self.showMessage(message: resultMessage!)
                 }
             },
             failed: {
@@ -146,16 +150,23 @@ class ViewController: UIViewController {
         order.shipping = shipping
         order.billing = billing
 
+        // Referencia al objeto pago
+        var payment = SynapPayment();
+        // Seteo de los datos de código de procesador: "KASHIO" o "PAGOEFECTIVO"
+        var paymentCode = SynapPaymentCode();
+        paymentCode.processorCode = "KASHIO";
+        payment.paymentCode = paymentCode;
+        
         // Referencie al objeto configuración
         var settings = SynapSettings();
         // Seteo de los datos de configuración
-        settings.brands = ["VISA","MSCD","AMEX","DINC"];
+        settings.brands = ["BANKS"];
         settings.language = "es_PE";
         settings.businessService = "MOB";
 
-        // Expiration
+        // Fecha de expiración: máximo de 6 meses
         var expiration = SynapExpiration();
-        expiration.date = "2022-12-15T23:59:59.000Z";
+        expiration.date = "2022-03-15T23:59:59.000Z";
         settings.expiration = expiration;
 
         // Referencie al objeto transacción
@@ -163,17 +174,18 @@ class ViewController: UIViewController {
         // Seteo de los datos de transacción
         transaction.order = order;
         transaction.settings = settings;
+        transaction.payment = payment;
                 
         return transaction;
     }
     
     func buildAuthenticator(_ transaction: SynapTransaction) -> SynapAuthenticator{
-        let apiKey = "ab254a10-ddc2-4d84-8f31-d3fab9d49520"
+        let apiKey = "ab254a10-ddc2-4d84-8f31-d3fab9d49520"; //"4d78b7b1-52cd-418b-8532-94cf0a1d514c";
         
         // La signatureKey y la función de generación de firma debe usarse e implementarse en el servidor del comercio utilizando la función criptográfica SHA-512
         // solo con propósito de demostrar la funcionalidad, se implementará en el ejemplo
         // (bajo ninguna circunstancia debe exponerse la signatureKey y la función de firma desde la aplicación porque compromete la seguridad)
-        let signatureKey = "eDpehY%YPYgsoludCSZhu*WLdmKBWfAo"
+        let signatureKey = "eDpehY%YPYgsoludCSZhu*WLdmKBWfAo"; //"x#lE6WT*4duyMODG*nIaD#Ma84qeS$ra";
         
         let signature = generateSignature(transaction: transaction, apiKey: apiKey, signatureKey: signatureKey)
         
