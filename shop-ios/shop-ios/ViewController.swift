@@ -47,19 +47,24 @@ class ViewController: UIViewController {
             // Manejo de la respuesta
             success: {
                 (response) in
-                let resultAccepted = response.result!.accepted
-                let resultMessage = response.result!.message
-                // if (response.result != nil) {
-                if (resultAccepted!) {
-                    // Agregue el código según la experiencia del cliente para la autorización
-                    let messageText = response.result!.message!;
-                    let code = response.result!.processorResult!.paymentCode!.code!;
-                    self.showMessage(message: messageText + ": " + code)
+                let resulSuccess = response.success!
+                if (resulSuccess) {
+                    let resultAccepted = response.result!.accepted
+                    let resultMessage = response.result!.message
+                    if (resultAccepted!) {
+                        // Agregue el código según la experiencia del cliente para la autorización
+                        let paymentCode = response.result!.processorResult!.paymentCode!.code!;
+                        self.showMessage(message: resultMessage! + " - Código: " + paymentCode)
+                    }
+                    else {
+                        // Agregue el código según la experiencia del cliente para la denegación
+                        self.showMessage(message: resultMessage!)
+                    }
                 }
                 else {
-                    // Agregue el código según la experiencia del cliente para la denegación
-                    // self.showMessage(message: response.message!.text!)
-                    self.showMessage(message: resultMessage!)
+                    let messageText = response.message!.text!
+                    // Agregue el código de la experiencia que desee visualizar en un error
+                    self.showMessage(message: messageText)
                 }
             },
             failed: {
@@ -67,25 +72,24 @@ class ViewController: UIViewController {
                 let messageText = response.message!.text!
                 // Agregue el código de la experiencia que desee visualizar en un error
                 self.showMessage(message: messageText)
-                /*self.synapButton.isEnabled=true*/
             }
         )
     }
     
     func buildTransaction() -> SynapTransaction{
-        // Genere el número de orden, este es solo un ejemplo
+        // Genere el número de orden (este es solo un ejemplo)
         let number = String(getCurrentMillis());
         
         // Seteo de los datos de transacción
         // Referencie al objeto país
         var country = SynapCountry()
         // Seteo del código de país
-        country.code = "PER"
+        country.code = "PER" // Código de País (ISO 3166-2)
 
         // Referencie al objeto moneda
         var currency = SynapCurrency()
         // Seteo del código de moneda
-        currency.code = "PEN"
+        currency.code = "PEN" // Código de Moneda - Alphabetic code (ISO 4217)
         
         //Seteo del monto
         let amount = "1.00"
@@ -99,13 +103,13 @@ class ViewController: UIViewController {
         // Referencie al objeto dirección del cliente
         var customerAddress = SynapAddress()
         // Seteo del pais (country), niveles de ubicación geográfica (levels), dirección (line1 y line2) y código postal (zip)
-        customerAddress.country = "PER"
+        customerAddress.country = "PER" // Código de País del cliente (ISO 3166-2)
         customerAddress.levels = [String]()
-        customerAddress.levels?.append("150000")
-        customerAddress.levels?.append("150100")
-        customerAddress.levels?.append("150101")
-        customerAddress.line1 = "Ca Carlos Ferreyros 180"
-        customerAddress.zip = "15036"
+        customerAddress.levels?.append("150000") // Código de Área (Ubigeo - Departamento)
+        customerAddress.levels?.append("150100") // Código de Área (Ubigeo - Provincia)
+        customerAddress.levels?.append("150101") // Código de Área (Ubigeo - Distrito)
+        customerAddress.line1 = "Ca Carlos Ferreyros 180" // Dirección
+        customerAddress.zip = "15036" // Código Postal
         customer.address = customerAddress
         
         // Seteo del email y teléfono
@@ -115,23 +119,23 @@ class ViewController: UIViewController {
         // Referencie al objeto documento del cliente
         var customerDocument = SynapDocument()
         // Seteo del tipo y número de documento
-        customerDocument.type = "DNI"
+        customerDocument.type = "DNI" // [ DNI: Documento de identidad, CE: Carné de extranjería, PAS: Pasaporte, RUC: Registro único de contribuyente ]
         customerDocument.number = "44556677"
         customer.document = customerDocument
         
         // Seteo de los datos de envío
-        let shipping = customer
+        let shipping = customer // Opcional, misma estructura que "customer"
         // Seteo de los datos de facturación
-        let billing = customer
+        let billing = customer // Opcional, misma estructura que "customer"
         
         // Referencie al objeto producto
         var productItem = SynapProduct()
         // Seteo de los datos de producto
-        productItem.code = "123"
+        productItem.code = "123" // Opcional
         productItem.name = "Llavero"
-        productItem.quantity = "1"
-        productItem.unitAmount = "1.00"
-        productItem.amount = "1.00"
+        productItem.quantity = "1" // Opcional
+        productItem.unitAmount = "1.00" // Opcional
+        productItem.amount = "1.00" // Opcional
         
         // Referencie al objeto lista producto
         var products = [SynapProduct]()
@@ -152,9 +156,9 @@ class ViewController: UIViewController {
 
         // Referencia al objeto pago
         var payment = SynapPayment();
-        // Seteo de los datos de código de procesador: "KASHIO" o "PAGOEFECTIVO"
+        // Seteo de los datos de procesador
         var paymentCode = SynapPaymentCode();
-        paymentCode.processorCode = "KASHIO";
+        paymentCode.processorCode = "KASHIO"; // [ KASHIO, PAGOEFECTIVO ]
         payment.paymentCode = paymentCode;
         
         // Referencie al objeto configuración
@@ -164,9 +168,9 @@ class ViewController: UIViewController {
         settings.language = "es_PE";
         settings.businessService = "MOB";
 
-        // Fecha de expiración: máximo de 6 meses
+        // Fecha de expiración
         var expiration = SynapExpiration();
-        expiration.date = "2022-03-15T23:59:59.000Z";
+        expiration.date = "2022-07-31T23:59:59.000Z"; // Máximo de 6 meses
         settings.expiration = expiration;
 
         // Referencie al objeto transacción
@@ -180,12 +184,12 @@ class ViewController: UIViewController {
     }
     
     func buildAuthenticator(_ transaction: SynapTransaction) -> SynapAuthenticator{
-        let apiKey = "ab254a10-ddc2-4d84-8f31-d3fab9d49520"; //"4d78b7b1-52cd-418b-8532-94cf0a1d514c";
+        let apiKey = "ab254a10-ddc2-4d84-8f31-d3fab9d49520";
         
         // La signatureKey y la función de generación de firma debe usarse e implementarse en el servidor del comercio utilizando la función criptográfica SHA-512
         // solo con propósito de demostrar la funcionalidad, se implementará en el ejemplo
         // (bajo ninguna circunstancia debe exponerse la signatureKey y la función de firma desde la aplicación porque compromete la seguridad)
-        let signatureKey = "eDpehY%YPYgsoludCSZhu*WLdmKBWfAo"; //"x#lE6WT*4duyMODG*nIaD#Ma84qeS$ra";
+        let signatureKey = "eDpehY%YPYgsoludCSZhu*WLdmKBWfAo";
         
         let signature = generateSignature(transaction: transaction, apiKey: apiKey, signatureKey: signatureKey)
         
@@ -223,7 +227,6 @@ class ViewController: UIViewController {
         DispatchQueue.main.async {
             let alertMessage = UIAlertController(title: "", message: message, preferredStyle: .alert)
             // Finaliza el intento de pago y regresa al inicio, el comercio define la experiencia del cliente
-            /*let cancelAction = UIAlertAction(title: "Ok", style: .cancel, handler: { action in self.viewDidLoad()})*/
             let cancelAction = UIAlertAction(title: "Ok", style: .cancel)
 
             alertMessage.addAction(cancelAction)
