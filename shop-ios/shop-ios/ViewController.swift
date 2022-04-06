@@ -137,18 +137,18 @@ class ViewController: UIViewController {
         productItem.unitAmount = "1.00" // Opcional
         productItem.amount = "1.00" // Opcional
         
-        // Referencie al objeto lista producto
+        // Referencie al objeto lista producto - Opcional
         var products = [SynapProduct]()
         // Seteo de los datos de lista de producto
         products.append(productItem)
         
-        // Referencie al objeto metadata
+        // Referencie al objeto metadata - Opcional
         var metadataItem = SynapMetadata()
         // Seteo de los datos de metadata
         metadataItem.name = "name1"
         metadataItem.value = "value1"
 
-        // Referencie al objeto lista de metadata
+        // Referencie al objeto lista de metadata - Opcional
         var metadataList = [SynapMetadata]();
         // Seteo de los datos de lista de metadata
         metadataList.append(metadataItem);
@@ -162,9 +162,9 @@ class ViewController: UIViewController {
         order.currency = currency
         order.products = products
         order.customer = customer
-        order.shipping = shipping
-        order.billing = billing
-        order.metadata = metadataList
+        order.shipping = shipping // Opcional
+        order.billing = billing // Opcional
+        order.metadata = metadataList // Opcional
 
         // Referencia al objeto pago
         var payment = SynapPayment();
