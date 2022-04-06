@@ -108,12 +108,12 @@ class ViewController: UIViewController {
         customerAddress.levels?.append("150000") // Código de Área (Ubigeo - Departamento)
         customerAddress.levels?.append("150100") // Código de Área (Ubigeo - Provincia)
         customerAddress.levels?.append("150101") // Código de Área (Ubigeo - Distrito)
-        customerAddress.line1 = "Ca Carlos Ferreyros 180" // Dirección
-        customerAddress.zip = "15036" // Código Postal
+        customerAddress.line1 = "Av La Solidaridad 103" // Dirección
+        customerAddress.zip = "15034" // Código Postal
         customer.address = customerAddress
         
         // Seteo del email y teléfono
-        customer.email = "javier.perez@synapsolutions.com"
+        customer.email = "javier.perez@synapsis.pe"
         customer.phone = "999888777"
 
         // Referencie al objeto documento del cliente
