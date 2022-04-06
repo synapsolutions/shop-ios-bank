@@ -47,15 +47,24 @@ class ViewController: UIViewController {
             // Manejo de la respuesta
             success: {
                 (response) in
-                if (response.result != nil) {
-                    // Agregue el código según la experiencia del cliente para la autorización
-                    let messageText = response.result!.message!;
-                    let code = response.result!.processorResult!.paymentCode!.code!;
-                    self.showMessage(message: messageText + ": " + code)
+                let resulSuccess = response.success!
+                if (resulSuccess) {
+                    let resultAccepted = response.result!.accepted
+                    let resultMessage = response.result!.message
+                    if (resultAccepted!) {
+                        // Agregue el código según la experiencia del cliente para la autorización
+                        let paymentCode = response.result!.processorResult!.paymentCode!.code!;
+                        self.showMessage(message: resultMessage! + " - Código: " + paymentCode)
+                    }
+                    else {
+                        // Agregue el código según la experiencia del cliente para la denegación
+                        self.showMessage(message: resultMessage!)
+                    }
                 }
                 else {
-                    // Agregue el código según la experiencia del cliente para la denegación
-                    self.showMessage(message: response.message!.text!)
+                    let messageText = response.message!.text!
+                    // Agregue el código de la experiencia que desee visualizar en un error
+                    self.showMessage(message: messageText)
                 }
             },
             failed: {
@@ -63,25 +72,24 @@ class ViewController: UIViewController {
                 let messageText = response.message!.text!
                 // Agregue el código de la experiencia que desee visualizar en un error
                 self.showMessage(message: messageText)
-                /*self.synapButton.isEnabled=true*/
             }
         )
     }
     
     func buildTransaction() -> SynapTransaction{
-        // Genere el número de orden, este es solo un ejemplo
+        // Genere el número de orden (este es solo un ejemplo)
         let number = String(getCurrentMillis());
         
         // Seteo de los datos de transacción
         // Referencie al objeto país
         var country = SynapCountry()
         // Seteo del código de país
-        country.code = "PER"
+        country.code = "PER" // Código de País (ISO 3166-2)
 
         // Referencie al objeto moneda
         var currency = SynapCurrency()
         // Seteo del código de moneda
-        currency.code = "PEN"
+        currency.code = "PEN" // Código de Moneda - Alphabetic code (ISO 4217)
         
         //Seteo del monto
         let amount = "1.00"
@@ -95,45 +103,56 @@ class ViewController: UIViewController {
         // Referencie al objeto dirección del cliente
         var customerAddress = SynapAddress()
         // Seteo del pais (country), niveles de ubicación geográfica (levels), dirección (line1 y line2) y código postal (zip)
-        customerAddress.country = "PER"
+        customerAddress.country = "PER" // Código de País del cliente (ISO 3166-2)
         customerAddress.levels = [String]()
-        customerAddress.levels?.append("150000")
-        customerAddress.levels?.append("150100")
-        customerAddress.levels?.append("150101")
-        customerAddress.line1 = "Ca Carlos Ferreyros 180"
-        customerAddress.zip = "15036"
+        customerAddress.levels?.append("150000") // Código de Área (Ubigeo - Departamento)
+        customerAddress.levels?.append("150100") // Código de Área (Ubigeo - Provincia)
+        customerAddress.levels?.append("150101") // Código de Área (Ubigeo - Distrito)
+        customerAddress.line1 = "Av La Solidaridad 103" // Dirección
+        customerAddress.zip = "15034" // Código Postal
         customer.address = customerAddress
         
         // Seteo del email y teléfono
-        customer.email = "javier.perez@synapsolutions.com"
+        customer.email = "javier.perez@synapsis.pe"
         customer.phone = "999888777"
 
         // Referencie al objeto documento del cliente
         var customerDocument = SynapDocument()
         // Seteo del tipo y número de documento
-        customerDocument.type = "DNI"
+        customerDocument.type = "DNI" // [ DNI: Documento de identidad, CE: Carné de extranjería, PAS: Pasaporte, RUC: Registro único de contribuyente ]
         customerDocument.number = "44556677"
         customer.document = customerDocument
         
         // Seteo de los datos de envío
-        let shipping = customer
+        let shipping = customer // Opcional, misma estructura que "customer"
         // Seteo de los datos de facturación
-        let billing = customer
+        let billing = customer // Opcional, misma estructura que "customer"
         
         // Referencie al objeto producto
         var productItem = SynapProduct()
         // Seteo de los datos de producto
-        productItem.code = "123"
+        productItem.code = "123" // Opcional
         productItem.name = "Llavero"
-        productItem.quantity = "1"
-        productItem.unitAmount = "1.00"
-        productItem.amount = "1.00"
+        productItem.quantity = "1" // Opcional
+        productItem.unitAmount = "1.00" // Opcional
+        productItem.amount = "1.00" // Opcional
         
-        // Referencie al objeto lista producto
+        // Referencie al objeto lista producto - Opcional
         var products = [SynapProduct]()
         // Seteo de los datos de lista de producto
         products.append(productItem)
         
+        // Referencie al objeto metadata - Opcional
+        var metadataItem = SynapMetadata()
+        // Seteo de los datos de metadata
+        metadataItem.name = "name1"
+        metadataItem.value = "value1"
+
+        // Referencie al objeto lista de metadata - Opcional
+        var metadataList = [SynapMetadata]();
+        // Seteo de los datos de lista de metadata
+        metadataList.append(metadataItem);
+
         // Referencie al objeto orden
         var order = SynapOrder();
         // Seteo de los datos de orden
@@ -143,37 +162,47 @@ class ViewController: UIViewController {
         order.currency = currency
         order.products = products
         order.customer = customer
-        order.shipping = shipping
-        order.billing = billing
+        order.shipping = shipping // Opcional
+        order.billing = billing // Opcional
+        order.metadata = metadataList // Opcional
 
+        // Referencia al objeto pago
+        var payment = SynapPayment();
+        // Seteo de los datos de procesador
+        var paymentCode = SynapPaymentCode();
+        paymentCode.processorCode = "KASHIO"; // [ KASHIO, PAGOEFECTIVO ]
+        payment.paymentCode = paymentCode;
+        
         // Referencie al objeto configuración
         var settings = SynapSettings();
         // Seteo de los datos de configuración
-        settings.brands = ["VISA","MSCD","AMEX","DINC"];
+        settings.brands = ["BANKS"];
         settings.language = "es_PE";
         settings.businessService = "MOB";
 
-        // Expiration
+        // Referencie al objeto expiración
         var expiration = SynapExpiration();
-        expiration.date = "2020-08-15T23:59:59.000Z";
+        // Seteo de los datos de expiración
+        expiration.date = "2022-07-31T23:59:59.000Z"; // Máximo de 6 meses
         settings.expiration = expiration;
 
         // Referencie al objeto transacción
         var transaction = SynapTransaction();
         // Seteo de los datos de transacción
         transaction.order = order;
+        transaction.payment = payment;
         transaction.settings = settings;
                 
         return transaction;
     }
     
     func buildAuthenticator(_ transaction: SynapTransaction) -> SynapAuthenticator{
-        let apiKey = "ab254a10-ddc2-4d84-8f31-d3fab9d49520"
+        let apiKey = "ab254a10-ddc2-4d84-8f31-d3fab9d49520";
         
         // La signatureKey y la función de generación de firma debe usarse e implementarse en el servidor del comercio utilizando la función criptográfica SHA-512
         // solo con propósito de demostrar la funcionalidad, se implementará en el ejemplo
         // (bajo ninguna circunstancia debe exponerse la signatureKey y la función de firma desde la aplicación porque compromete la seguridad)
-        let signatureKey = "eDpehY%YPYgsoludCSZhu*WLdmKBWfAo"
+        let signatureKey = "eDpehY%YPYgsoludCSZhu*WLdmKBWfAo";
         
         let signature = generateSignature(transaction: transaction, apiKey: apiKey, signatureKey: signatureKey)
         
@@ -211,7 +240,6 @@ class ViewController: UIViewController {
         DispatchQueue.main.async {
             let alertMessage = UIAlertController(title: "", message: message, preferredStyle: .alert)
             // Finaliza el intento de pago y regresa al inicio, el comercio define la experiencia del cliente
-            /*let cancelAction = UIAlertAction(title: "Ok", style: .cancel, handler: { action in self.viewDidLoad()})*/
             let cancelAction = UIAlertAction(title: "Ok", style: .cancel)
 
             alertMessage.addAction(cancelAction)
