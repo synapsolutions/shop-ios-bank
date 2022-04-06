@@ -142,6 +142,17 @@ class ViewController: UIViewController {
         // Seteo de los datos de lista de producto
         products.append(productItem)
         
+        // Referencie al objeto metadata
+        var metadataItem = SynapMetadata()
+        // Seteo de los datos de metadata
+        metadataItem.name = "name1"
+        metadataItem.value = "value1"
+
+        // Referencie al objeto lista de metadata
+        var metadataList = [SynapMetadata]();
+        // Seteo de los datos de lista de metadata
+        metadataList.append(metadataItem);
+
         // Referencie al objeto orden
         var order = SynapOrder();
         // Seteo de los datos de orden
@@ -153,6 +164,7 @@ class ViewController: UIViewController {
         order.customer = customer
         order.shipping = shipping
         order.billing = billing
+        order.metadata = metadataList
 
         // Referencia al objeto pago
         var payment = SynapPayment();
@@ -168,8 +180,9 @@ class ViewController: UIViewController {
         settings.language = "es_PE";
         settings.businessService = "MOB";
 
-        // Fecha de expiración
+        // Referencie al objeto expiración
         var expiration = SynapExpiration();
+        // Seteo de los datos de expiración
         expiration.date = "2022-07-31T23:59:59.000Z"; // Máximo de 6 meses
         settings.expiration = expiration;
 
@@ -177,8 +190,8 @@ class ViewController: UIViewController {
         var transaction = SynapTransaction();
         // Seteo de los datos de transacción
         transaction.order = order;
-        transaction.settings = settings;
         transaction.payment = payment;
+        transaction.settings = settings;
                 
         return transaction;
     }
