@@ -9,26 +9,31 @@
 import UIKit
 import CommonCrypto
 import SynapPay
+import WebKit
 
 class ViewController: UIViewController {
     
     var paymentWidget: SynapPayButton!
     @IBOutlet weak var synapForm: UIView!
     @IBOutlet weak var synapButton: UIButton!
+    @IBOutlet weak var synapWebView: WKWebView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
 
         // Oculte el contenedor del formulario de pago (View), hasta que se ejecute la acción de continuar al pago
-        self.synapForm.isHidden = true        
+        self.synapForm.isHidden = true
+        
+        // Oculte el contenedor del formulario de autenticación 3DS (WKWebView)
+        self.synapWebView.isHidden = true
     }
     
     @IBAction func startPayment(_ sender: Any) {
         // Muestre el contenedor del formulario de pago
         self.synapForm.isHidden = false
-        
+                
         // Crea el objeto del widget de pago
-        self.paymentWidget = SynapPayButton.createPaymentBanks(view: self.synapForm)
+        self.paymentWidget = SynapPayButton.createPaymentBanks(view: self.synapForm, view: self.synapWebView)
                 
         // Seteo del ambiente ".sandbox" o ".production"
         SynapPayButton.setEnvironment(.sandbox)
@@ -43,6 +48,7 @@ class ViewController: UIViewController {
             // Seteo de autenticación de seguridad y transacción
             authenticator: authenticator,
             transaction: transaction,
+            webView: self.synapWebView, // Seteo de WebView de autenticación 3DS
             
             // Manejo de la respuesta
             success: {
@@ -183,7 +189,7 @@ class ViewController: UIViewController {
         // Referencie al objeto expiración
         var expiration = SynapExpiration();
         // Seteo de los datos de expiración
-        expiration.date = "2022-07-31T23:59:59.000Z"; // Máximo de 6 meses
+        expiration.date = "2022-12-31T23:59:59.000Z"; // Máximo de 6 meses
         settings.expiration = expiration;
 
         // Referencie al objeto transacción
